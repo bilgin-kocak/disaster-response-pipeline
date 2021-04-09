@@ -27,6 +27,7 @@ $ pip install pandas
 $ pip install sklearn
 $ pip install plotly
 $ pip install nltk
+$ pip install -U Flask
 ```
 
 if pip doesn't work for you, just try `pip3` instead of `pip`
