@@ -6,21 +6,21 @@ from sqlalchemy import create_engine
 def load_data(messages_filepath, categories_filepath):
     '''
     Load Data From CSV Files
-    
+
     Args:
         messages_filepath : Path to messages file
         categories_filepath : Path to categories file
     Returns:
         df : DataFrame after merging both messages ans categories file
     '''
-   
+
     #Read csv file and load in the variable as dataframe
-    messages = pd.read_csv(messages_filepath) 
+    messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
-    
+
     # merge messages and categories on 'id' column
     df = pd.merge(messages, categories, on=["id"], how='inner')
-    
+
     return df
 
 
@@ -30,7 +30,7 @@ def clean_data(df):
     Args:
         df : merged DataFrame returned by load_data function
     Returns:
-        df : 
+        df :
     '''
     # Creating Different column for different category
     categories = df['categories'].str.split(';',expand=True)
@@ -38,12 +38,12 @@ def clean_data(df):
     row = categories.iloc[0]
     category_colnames = [i[:-2] for i in row]
     categories.columns = category_colnames
-    
+
     for column in categories:
         # set each value to be the last character of the string
         categories[column] = categories[column].apply(lambda x: int(x[-1]))
-    
 
+    categories[categories["related"]==2] = 1
     # Droping old category column of dataframe
     df.drop(columns=['categories'], inplace=True)
 
@@ -56,7 +56,7 @@ def clean_data(df):
     df.drop(['original'], axis=1, inplace=True)
     # drop rows with NA
     df.dropna(inplace=True)
-    
+
     return df
 
 
@@ -70,7 +70,7 @@ def save_data(df, database_filename):
 
     engine = create_engine('sqlite:///'+ database_filename)
     df.to_sql('disaster_clean', engine, index=False, if_exists='replace')
-    
+
 
 
 def main():
@@ -84,12 +84,12 @@ def main():
 
         print('Cleaning data...')
         df = clean_data(df)
-        
+
         print('Saving data...\n    DATABASE: {}'.format(database_filepath))
         save_data(df, database_filepath)
-        
+
         print('Cleaned data saved to database!')
-    
+
     else:
         print('Please provide the filepaths of the messages and categories '\
               'datasets as the first and second argument respectively, as '\
